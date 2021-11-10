@@ -310,7 +310,7 @@ class Sim(pygiv.ClassViewObj):
 
     def ApplyInputs(ss, en):
         """
-        ApplyInputs applies input patterns from given envirbonment.
+        ApplyInputs applies input patterns from given environment.
         It is good practice to have this be a separate method with appropriate
 
         # going to the same layers, but good practice and cheap anyway

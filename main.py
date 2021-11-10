@@ -16,7 +16,10 @@ def image_to_grey(show_bool):
     https://techtutorialsx.com/2019/04/13/python-opencv-converting-image-to-black-and-white/
     :return:
     """
-    originalImage = cv2.imread('images/face2.jpg')
+    originalImage = cv2.imread('images/face1.jpg')
+    # Resizing to 250 x 250
+    dim = (250,250)
+    originalImage = cv2.resize(originalImage, dim)#, interpolation=cv2.INTER_AREA) # experiment with different interpolation methods
     greyImage = cv2.cvtColor(originalImage, cv2.COLOR_BGR2GRAY)
     # Note: try different thresholds here
     (thresh, blackAndWhiteImage1) = cv2.threshold(greyImage, 127, 255, cv2.THRESH_BINARY)
@@ -26,6 +29,8 @@ def image_to_grey(show_bool):
         cv2.imshow('Black white image', blackAndWhiteImage1)
         cv2.waitKey(0)  # closes windows when user presses key
         cv2.destroyAllWindows()
+
+    print(blackAndWhiteImage1.shape)
 
 if __name__ == '__main__':
     image_to_grey(show_bool=True)
