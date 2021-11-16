@@ -215,21 +215,28 @@ class Sim(pygiv.ClassViewObj):
         ss.TestEnv.Init(0)
 
     def ConfigNet(ss, net):
+        # EDIT HERE 1 (pineapple)
         net.InitName(net, "FaceCateg")
+        """
         inp = net.AddLayer2D("Input", 16, 16, emer.Input)
         emo = net.AddLayer2D("Emotion", 1, 2, emer.Compare)
         gend = net.AddLayer2D("Gender", 1, 2, emer.Compare)
         iden = net.AddLayer2D("Identity", 1, 10, emer.Compare)
+        """
+        inp = net.AddLayer2D("Input", 150, 150, emer.Input)
+        emo = net.AddLayer2D("Emotion", 1, 2, emer.Compare)
+        #gend = net.AddLayer2D("Gender", 1, 2, emer.Compare)
+        #iden = net.AddLayer2D("Identity", 1, 10, emer.Compare)
 
         full = prjn.NewFull()
     
         net.BidirConnectLayersPy(inp, emo, full)
-        net.BidirConnectLayersPy(inp, gend, full)
-        net.BidirConnectLayersPy(inp, iden, full)
+        #net.BidirConnectLayersPy(inp, gend, full)
+        #net.BidirConnectLayersPy(inp, iden, full)
 
         emo.SetRelPos(relpos.Rel(Rel= relpos.Above, Other= "Input", YAlign= relpos.Front, XAlign= relpos.Left, Space= 2))
-        gend.SetRelPos(relpos.Rel(Rel= relpos.Above, Other= "Input", YAlign= relpos.Front, XAlign= relpos.Right, Space= 2))
-        iden.SetRelPos(relpos.Rel(Rel= relpos.Above, Other= "Input", YAlign= relpos.Center, XAlign= relpos.Left, Space= 2))
+        #gend.SetRelPos(relpos.Rel(Rel= relpos.Above, Other= "Input", YAlign= relpos.Front, XAlign= relpos.Right, Space= 2))
+        #iden.SetRelPos(relpos.Rel(Rel= relpos.Above, Other= "Input", YAlign= relpos.Center, XAlign= relpos.Left, Space= 2))
 
         net.Defaults()
         ss.SetParams("Network", False)
@@ -318,8 +325,10 @@ class Sim(pygiv.ClassViewObj):
         (training, testing, etc).
         """
         ss.Net.InitExt()
+        # EDIT HERE 2 (pineapple)
+        #lays = go.Slice_string(["Input", "Emotion", "Gender", "Identity"])
+        lays = go.Slice_string(["Input", "Emotion"])
 
-        lays = go.Slice_string(["Input", "Emotion", "Gender", "Identity"])
         for lnm in lays :
             ly = leabra.LeabraLayer(ss.Net.LayerByName(lnm)).AsLeabra()
             pats = en.State(ly.Nm)
@@ -445,20 +454,21 @@ class Sim(pygiv.ClassViewObj):
         SetInput sets whether the input to the network comes in bottom-up
         (Input layer) or top-down (Higher-level category layers)
         """
+        # EDIT HERE 3 (pineapple)
         inp =  leabra.Layer(ss.Net.LayerByName("Input"))
         emo =  leabra.Layer(ss.Net.LayerByName("Emotion"))
-        gend = leabra.Layer(ss.Net.LayerByName("Gender"))
-        iden = leabra.Layer(ss.Net.LayerByName("Identity"))
+        #gend = leabra.Layer(ss.Net.LayerByName("Gender"))
+        #iden = leabra.Layer(ss.Net.LayerByName("Identity"))
         if topDown:
             inp.SetType(emer.Compare)
             emo.SetType(emer.Input)
-            gend.SetType(emer.Input)
-            iden.SetType(emer.Input)
+            #gend.SetType(emer.Input)
+            #iden.SetType(emer.Input)
         else:
             inp.SetType(emer.Input)
             emo.SetType(emer.Compare)
-            gend.SetType(emer.Compare)
-            iden.SetType(emer.Compare)
+            #gend.SetType(emer.Compare)
+            #iden.SetType(emer.Compare)
 
     def SetPats(ss, partial):
         """
@@ -486,10 +496,11 @@ class Sim(pygiv.ClassViewObj):
         """
         ClusterPlots computes all the cluster plots from the faces input data
         """
+        # EDIT HERE 4 (pineapple)
         ss.ClustPlot(ss.ClustFaces, ss.Pats, "Input")
         ss.ClustPlot(ss.ClustEmote, ss.Pats, "Emotion")
-        ss.ClustPlot(ss.ClustGend, ss.Pats, "Gender")
-        ss.ClustPlot(ss.ClustIdent, ss.Pats, "Identity")
+        #ss.ClustPlot(ss.ClustGend, ss.Pats, "Gender")
+        #ss.ClustPlot(ss.ClustIdent, ss.Pats, "Identity")
 
         ss.PrjnPlot()
 
@@ -531,15 +542,20 @@ class Sim(pygiv.ClassViewObj):
             emote = 0.5*tst.CellTensorFloat1D("Emotion", r, 0) + -0.5*tst.CellTensorFloat1D("Emotion", r, 1)
             emote += .1 * (2*rand.Float64() - 1)
 
-            gend = 0.5*tst.CellTensorFloat1D("Gender", r, 0) + -0.5*tst.CellTensorFloat1D("Gender", r, 1)
-            gend += .1 * (2*rand.Float64() - 1) # some jitter so labels are readable
+            # EDIT HERE 5 (pineapple)
+            #gend = 0.5*tst.CellTensorFloat1D("Gender", r, 0) + -0.5*tst.CellTensorFloat1D("Gender", r, 1)
+            #gend += .1 * (2*rand.Float64() - 1) # some jitter so labels are readable
+
             input = etensor.Float32(tst.CellTensor("Input", r))
             rprjn0 = metric.InnerProduct32(rvec0.Values, input.Values)
             rprjn1 = metric.InnerProduct32(rvec1.Values, input.Values)
             dt.SetCellFloat("Trial", r, tst.CellFloat("Trial", r))
             dt.SetCellString("TrialName", r, tst.CellString("TrialName", r))
-            dt.SetCellFloat("GendPrjn", r, gend)
+
+            # EDIT HERE 6 (pineapple)
+            #dt.SetCellFloat("GendPrjn", r, gend)
             dt.SetCellFloat("EmotePrjn", r, emote)
+
             dt.SetCellFloat("RndPrjn0", r, float(rprjn0))
             dt.SetCellFloat("RndPrjn1", r, float(rprjn1))
 
@@ -564,8 +580,9 @@ class Sim(pygiv.ClassViewObj):
         plt.Params.Points = True
         # order of params: on, fixMin, min, fixMax, max
         plt.SetColParams("TrialName", eplot.On, eplot.FixMin, 0, eplot.FloatMax, 0)
-        plt.SetColParams("GendPrjn", eplot.Off, eplot.FixMin, -1, eplot.FixMax, 1)
-        plt.SetColParams("EmotePrjn", eplot.On, eplot.FixMin, -1, eplot.FixMax, 1)
+        # EDIT HERE 7 (pineapple)
+        #plt.SetColParams("GendPrjn", eplot.Off, eplot.FixMin, -1, eplot.FixMax, 1)
+        #plt.SetColParams("EmotePrjn", eplot.On, eplot.FixMin, -1, eplot.FixMax, 1)
 
     def ConfigPrjnTable(ss, dt):
         dt.SetMetaData("name", "PrjnTable")
@@ -577,7 +594,7 @@ class Sim(pygiv.ClassViewObj):
         sch = etable.Schema(
             [etable.Column("Trial", etensor.INT64, go.nil, go.nil),
             etable.Column("TrialName", etensor.STRING, go.nil, go.nil),
-            etable.Column("GendPrjn", etensor.FLOAT64, go.nil, go.nil),
+            #etable.Column("GendPrjn", etensor.FLOAT64, go.nil, go.nil), # EDIT HERE 8 (pineapple)
             etable.Column("EmotePrjn", etensor.FLOAT64, go.nil, go.nil),
             etable.Column("RndPrjn0", etensor.FLOAT64, go.nil, go.nil),
             etable.Column("RndPrjn1", etensor.FLOAT64, go.nil, go.nil)]
@@ -637,6 +654,7 @@ class Sim(pygiv.ClassViewObj):
         return plt
 
     def ConfigNetView(ss, nv):
+        # EDIT HERE 9 (pineapple)
         labs = go.Slice_string(["happy sad", "female  male", "Albt Bett Lisa Mrk Wnd Zane"])
         nv.ConfigLabels(labs)
         emot = nv.LayerByName("Emotion")
