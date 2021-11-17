@@ -248,20 +248,21 @@ class Sim(pygiv.ClassViewObj):
         InitWts loads the saved weights
         """
         net.InitWts()
-        net.OpenWtsJSON("faces.wts")
+        # EDIT HERE 10 (pineapple)
+        #net.OpenWtsJSON("faces.wts")
+        net.OpenWtsJSON("../../TEST_data.wts")
 
     def Init(ss):
         """
         Init restarts the run, and initializes everything, including network weights
         and resets the epoch log table
         """
-
         ss.TestEnv.Init(0)
         ss.Time.Reset()
-        ss.Time.CycPerQtr = 10 # don't need much time
+        ss.Time.CycPerQtr = 10  # don't need much time
         ss.InitWts(ss.Net)
         ss.StopNow = False
-        ss.SetParams("", False) # all sheets
+        ss.SetParams("", False)  # all sheets
         ss.UpdateView()
 
     def Counters(ss):

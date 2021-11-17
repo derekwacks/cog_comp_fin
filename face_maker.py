@@ -23,9 +23,11 @@ print("LEN", len(input_cols))
 
 
 # Creating new data frame
-def create_dataframe():
-    image = np.zeros((250,250))
-    new_data = {'_H:': [], '$Name': [], '%Masked': []}
+def create_dataframe(dim):
+    image = np.zeros((dim,dim))
+    # happy = 1,0
+    # sad = 0,1
+    new_data = {'_H:': [], '$Name': [], '%Masked[2:0,0]<2:1,2>': [], '%Masked[2:0,1]': [], '%Emotion[2:0,0]<2:1,2>': [], '%Emotion[2:0,1]': []}
     for row in range(len(image)):  # 250 pixels
         for column in range(len(image[0])):  # 250 pixels
             if row==0 and column==0:
@@ -52,7 +54,22 @@ def fill_dataframe(data_frame, images, meta_data):
     for img in images:
         x = img.flatten()                   # flatten 2D numpy array
         y = list(map(str, x))               # convert to list of type str
-        y.insert(0, meta_data[counter][1])  # Masked or non-masked binary indicator
+
+        if meta_data[counter][2] == "happy":
+            y.insert(0, 0)  # emotion indicator 0
+            y.insert(0, 1)  # emotion indicator 1
+        elif meta_data[counter][2] == "sad":
+            y.insert(0, 1)  # emotion indicator 1
+            y.insert(0, 0)  # emotion indicator 0
+
+        #y.insert(0, meta_data[counter][1])  # Masked or non-masked binary indicator
+        if meta_data[counter][1] == "mask":
+            y.insert(0, 0)  # mask indicator 0
+            y.insert(0, 1)  # mask indicator 1
+        elif meta_data[counter][1] == "no-mask":
+            y.insert(0, 1)  # mask indicator 1
+            y.insert(0, 0)  # mask indicator 0
+
         y.insert(0, meta_data[counter][0])  # Name
         y.insert(0, "_D:")                  # Row type (data or header)
         if print_check:
