@@ -330,6 +330,7 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	//
 	// Please insert the additional code directly below inp.
 	inp := net.AddLayer2D("Input", 1, 6, emer.Input)
+	hid := net.AddLayer2D("Hidden", 1, 6, emer.Input)
 	out := net.AddLayer2D("Output", 1, 6, emer.Target)
 	//
 	// ****************************************************************************
@@ -366,7 +367,9 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	// Please remove the following line, connecting inp to out, and replace it with
 	// the connections we've just described.
 	//
-	net.ConnectLayers(inp, out, prjn.NewFull(), emer.Forward)
+	net.ConnectLayers(inp, hid, prjn.NewFull(), emer.Forward)
+    net.BidirConnectLayers(hid, out, prjn.NewFull())
+	//net.ConnectLayers(inp, out, prjn.NewFull(), emer.Forward)
 	//
 	// Once you've done this. Please proceed to Section 1b (by searching this file.)
 	// ****************************************************************************
@@ -1038,7 +1041,7 @@ func (ss *Sim) ConfigTstTrlLog(dt *etable.Table) {
 	// so you can just uncomment the second line below:
 	//
 	inp := ss.Net.LayerByName("Input").(*leabra.Layer)
-	// hid := ss.Net.LayerByName("Hidden").(*leabra.Layer)
+	hid := ss.Net.LayerByName("Hidden").(*leabra.Layer)
 	out := ss.Net.LayerByName("Output").(*leabra.Layer)
 	//
 	// ****************************************************************************
@@ -1070,7 +1073,7 @@ func (ss *Sim) ConfigTstTrlLog(dt *etable.Table) {
 		// Step 2: Now we want to create a spot in our data table for the information
 		// from the hidden layer. To do so, uncomment the following line:
 		// 
-		// {"HidActM", etensor.FLOAT64, hid.Shp.Shp, nil},
+		{"HidActM", etensor.FLOAT64, hid.Shp.Shp, nil},
 		// ****************************************************************************
 	}...)
 	dt.SetFromSchema(sch, nt)
@@ -1088,6 +1091,7 @@ func (ss *Sim) LogTstTrl(dt *etable.Table) {
 	// rather than setting up the data table. Create a 'hid' copy below.
 	//
 	inp := ss.Net.LayerByName("Input").(*leabra.Layer)
+	hid := ss.Net.LayerByName("Hidden").(*leabra.Layer)
 	out := ss.Net.LayerByName("Output").(*leabra.Layer)
 	//
 	// ****************************************************************************
@@ -1121,7 +1125,7 @@ func (ss *Sim) LogTstTrl(dt *etable.Table) {
 
 		// Insert the following below ss.OutputValTsr:
 		//
-		// ss.HiddenValsTsr = &etensor.Float32{}
+		ss.HiddenValsTsr = &etensor.Float32{}
 		ss.OutputValsTsr = &etensor.Float32{}
 		//
 	}
@@ -1138,7 +1142,8 @@ func (ss *Sim) LogTstTrl(dt *etable.Table) {
 	dt.SetCellTensor("OutActM", row, ss.OutputValsTsr)		// Line 2
 	// Put modified copies here:
 	//
-	//hid.UnitValsTensor(ss.HiddenValsTsr, "ActM")	// Modified copy of line 1
+	hid.UnitValsTensor(ss.HiddenValsTsr, "ActM")	// Modified copy of line 1
+	dt.SetCellTensor("HidActM", row, ss.HiddenValsTsr)
 	//	Modification of line 2 goes here	
 	//
 	// From here you should go to section 1d, where we set up our plot.
@@ -1478,8 +1483,8 @@ func (ss *Sim) ConfigGui() *gi.Window {
 	// Here we'll add a tab to display a plot, and call the function which sets up
 	// that plot, telling it to use the tab we just created. Uncomment the following:
 	//
- 	//plt := tv.AddNewTab(eplot.KiT_Plot2D, "TrnEpcPlot").(*eplot.Plot2D)
-	//ss.TrnEpcPlot = ss.ConfigTrnEpcPlot(plt, ss.TrnEpcLog)
+ 	plt := tv.AddNewTab(eplot.KiT_Plot2D, "TrnEpcPlot").(*eplot.Plot2D)
+	ss.TrnEpcPlot = ss.ConfigTrnEpcPlot(plt, ss.TrnEpcLog)
 	//
 	// Can you determine how the ConfigTrnEpcPlot function knows what data to keep
 	// track of? You should look through the function to see if you can find out.
