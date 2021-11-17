@@ -329,9 +329,16 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	//         Its type should be emer.Hidden.
 	//
 	// Please insert the additional code directly below inp.
-	inp := net.AddLayer2D("Input", 1, 6, emer.Input)
-	hid := net.AddLayer2D("Hidden", 1, 6, emer.Input)
-	out := net.AddLayer2D("Output", 1, 6, emer.Target)
+
+	// pineapple changed dimensions of layers here
+//	inp := net.AddLayer2D("Input", 1, 6, emer.Input)
+//	hid := net.AddLayer2D("Hidden", 1, 6, emer.Input)
+//	out := net.AddLayer2D("Output", 1, 6, emer.Target)
+	inp := net.AddLayer2D("Input", 150,150, emer.Input)
+	hid := net.AddLayer2D("Hidden", 10, 10, emer.Input)
+	out := net.AddLayer2D("Output", 1, 2, emer.Target)
+
+
 	//
 	// ****************************************************************************
 
@@ -374,7 +381,7 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	// Once you've done this. Please proceed to Section 1b (by searching this file.)
 	// ****************************************************************************
 
-
+    // pineapple
 	// note: see emergent/prjn module for all the options on how to connect
 	// note: can set these to do parallel threaded computation across multiple cpus
 	// not worth it for this small of a model, but definitely helps for larger ones
@@ -452,6 +459,8 @@ func (ss *Sim) AlphaCyc(train bool) {
 
 	// **********************************
 	// Insert context-layer code snippet from the README here:
+
+    // pineapple
 
 	// **********************************
 
@@ -860,7 +869,9 @@ func (ss *Sim) OpenPats() {
 	dt := ss.Pats
 	dt.SetMetaData("name", "TrainPats")
 	dt.SetMetaData("desc", "Training patterns")
-	err := dt.OpenCSV("empty.dat", etable.Tab)
+	// FILENAME HERE pineapple
+	//err := dt.OpenCSV("empty.dat", etable.Tab)
+	err := dt.OpenCSV("../new_faces.tsv", etable.Tab)
 	if err != nil {
 		log.Println(err)
 	}
