@@ -308,8 +308,8 @@ func (ss *Sim) ConfigEnv() {
     // // // // // // // // // //
 
     // pineapple
-	//ss.TrainEnv.Init(0)
-	//ss.TestEnv.Init(0)
+	ss.TrainEnv.Init(0)
+	ss.TestEnv.Init(0)
 }
 
 func (ss *Sim) ConfigNet(net *leabra.Network) {
@@ -338,6 +338,7 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 //	inp := net.AddLayer2D("Input", 1, 6, emer.Input)
 //	hid := net.AddLayer2D("Hidden", 1, 6, emer.Input)
 //	out := net.AddLayer2D("Output", 1, 6, emer.Target)
+
 	inp := net.AddLayer2D("Input", 150,150, emer.Input)
 	hid := net.AddLayer2D("Hidden", 10, 10, emer.Input)
 	out := net.AddLayer2D("Output", 1, 2, emer.Target)
