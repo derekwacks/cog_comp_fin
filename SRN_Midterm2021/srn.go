@@ -299,13 +299,17 @@ func (ss *Sim) ConfigEnv() {
 	ss.TestEnv.Validate()
 
 	// note: to create a train / test split of pats, do this:
-	// all := etable.NewIdxView(ss.Pats)
-	// splits, _ := split.Permuted(all, []float64{.8, .2}, []string{"Train", "Test"})
-	// ss.TrainEnv.Table = splits.Splits[0]
-	// ss.TestEnv.Table = splits.Splits[1]
+	// pineapple uncommenting lines to split train/test
+	// // // // // // // // // //
+	all := etable.NewIdxView(ss.Pats)
+	splits, _ := split.Permuted(all, []float64{.8, .2}, []string{"Train", "Test"})
+	ss.TrainEnv.Table = splits.Splits[0]
+	ss.TestEnv.Table = splits.Splits[1]
+    // // // // // // // // // //
 
-	ss.TrainEnv.Init(0)
-	ss.TestEnv.Init(0)
+    // pineapple
+	//ss.TrainEnv.Init(0)
+	//ss.TestEnv.Init(0)
 }
 
 func (ss *Sim) ConfigNet(net *leabra.Network) {

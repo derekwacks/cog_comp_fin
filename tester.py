@@ -1,5 +1,12 @@
 import numpy as np
 import json
 
-hello = np.around(np.random.rand(150**2), decimals=5)
-print(len(hello))
+meta_data = []
+for i in range(6):
+    person = [str(i + 1), 'no-mask', 'happy']
+    meta_data.append(person)
+for i in range(6, 12):
+    person = [str(i + 1), 'no-mask', 'sad']
+    meta_data.append(person)
+
+print(meta_data)

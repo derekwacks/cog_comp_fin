@@ -23,15 +23,20 @@ print("LEN", len(input_cols))
 
 
 # Creating new data frame
-def create_dataframe(dim):
+def create_dataframe(dim, mask_incl_bool):
+    #new_data = {'_H:': [], '$Name': [], '%Masked[2:0,0]<2:1,2>': [], '%Masked[2:0,1]': [], '%Emotion[2:0,0]<2:1,2>': [], '%Emotion[2:0,1]': []}
     image = np.zeros((dim,dim))
     # happy = 1,0
     # sad = 0,1
-    new_data = {'_H:': [], '$Name': [], '%Masked[2:0,0]<2:1,2>': [], '%Masked[2:0,1]': [], '%Emotion[2:0,0]<2:1,2>': [], '%Emotion[2:0,1]': []}
+    if mask_incl_bool:  # using Masked column and Emotion column
+        new_data = {'_H:': [], '$Name': [], '%Masked[2:0,0]<2:1,2>': [], '%Masked[2:0,1]': [], '%Emotion[2:0,0]<2:1,2>': [], '%Emotion[2:0,1]': []}
+    else:  # using just Output column as emotion column (and no Masked)
+        new_data = {'_H:': [], '$Name': [], '%Output[2:0,0]<2:1,2>': [], '%Output[2:0,1]': []}
     for row in range(len(image)):  # 250 pixels
         for column in range(len(image[0])):  # 250 pixels
             if row==0 and column==0:
-                new_entry = "%Input[2:0,0]<2:250,250>"  # to match format in faces tsv
+                dims = str(dim)+","+str(dim)
+                new_entry = "%Input[2:0,0]<2:"+dims+">"  # to match format in faces tsv
             else:
                 new_entry = "%Input[2:"+str(row)+","+str(column)+"]"
             new_data[new_entry] = []  # Create new column in dataframe
@@ -40,11 +45,12 @@ def create_dataframe(dim):
 
 
 
-def fill_dataframe(data_frame, images, meta_data):
+def fill_dataframe(data_frame, images, meta_data, mask_incl_bool):
     """
     :param data_frame: pandas data frame to fill with images (to eventually write to tsv)
     :param images: 2D numpy array filled with 0's and 255's
     :param meta_data: 2D array filled with names and info accompanying each image in 2D array
+    :param mask_incl_bool: bool to include masked column for data
     :return: filled data_frame
     """
     print_check=False
@@ -56,19 +62,20 @@ def fill_dataframe(data_frame, images, meta_data):
         y = list(map(str, x))               # convert to list of type str
 
         if meta_data[counter][2] == "happy":
-            y.insert(0, 0)  # emotion indicator 0
-            y.insert(0, 1)  # emotion indicator 1
+            y.insert(0, str(0))  # emotion indicator 0
+            y.insert(0, str(1))  # emotion indicator 1
         elif meta_data[counter][2] == "sad":
-            y.insert(0, 1)  # emotion indicator 1
-            y.insert(0, 0)  # emotion indicator 0
+            y.insert(0, str(1))  # emotion indicator 1
+            y.insert(0, str(0))  # emotion indicator 0
 
         #y.insert(0, meta_data[counter][1])  # Masked or non-masked binary indicator
-        if meta_data[counter][1] == "mask":
-            y.insert(0, 0)  # mask indicator 0
-            y.insert(0, 1)  # mask indicator 1
-        elif meta_data[counter][1] == "no-mask":
-            y.insert(0, 1)  # mask indicator 1
-            y.insert(0, 0)  # mask indicator 0
+        if mask_incl_bool:  # If we're using the Masked column in the .dat/.tsv file
+            if meta_data[counter][1] == "mask":
+                y.insert(0, str(0))  # mask indicator 0
+                y.insert(0, str(1))  # mask indicator 1
+            elif meta_data[counter][1] == "no-mask":
+                y.insert(0, str(1))  # mask indicator 1
+                y.insert(0, str(0))  # mask indicator 0
 
         y.insert(0, meta_data[counter][0])  # Name
         y.insert(0, "_D:")                  # Row type (data or header)
@@ -82,6 +89,7 @@ def fill_dataframe(data_frame, images, meta_data):
 
     #write_tsv(data_frame)
     # calling here instead
+
     df_local_copy.to_csv('new_faces.tsv', index=False, sep='\t')
 
     return df_local_copy
@@ -101,3 +109,10 @@ def check_created_file():
     check = pd.read_csv("new_faces.tsv", sep="\t")
     #a = check.values  # access array containing the values
     print(check)
+
+def create_test_plot():
+    ret = np.zeros(shape=(10,10))
+    ret[:,1] = 1
+    ret[8,:] = 1
+    return ret
+

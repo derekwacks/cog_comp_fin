@@ -14,18 +14,18 @@ def drawing_face():
 """
 
 
-def image_to_grey(show_bool):
+def image_to_grey(show_bool, num_of_images):
     """
     https://techtutorialsx.com/2019/04/13/python-opencv-converting-image-to-black-and-white/
     :return: returning_images, list of all images as 2D numpy arrays
     """
-    num_of_images = 2 # images currently in folder
+    #num_of_images = 3 # images currently in folder, setting in main()
     returning_images = []
 
     # Iterating over all images in folder
     for i in range(num_of_images):
         #file_name = 'images/face'+ str(i) +'.jpg'
-        name = "images/face"+str(i+1)+".jpg"
+        name = "images/masked/face"+str(i+1)+".jpg"
         print(name)
         originalImage = cv2.imread(name)
         # Resizing to 250 x 250
@@ -43,18 +43,39 @@ def image_to_grey(show_bool):
 
         # Convert all 255 values to 1's (so 2D array is binary)
         blackAndWhiteImage1[blackAndWhiteImage1 > 0] = 1
+        # Flip 0's and 1's
+        blackAndWhiteImage1 = np.where((blackAndWhiteImage1 == 0) | (blackAndWhiteImage1 == 1), blackAndWhiteImage1 ^ 1, blackAndWhiteImage1)
+
         # Add new image to list
         returning_images.append(blackAndWhiteImage1)
     return returning_images
 
 
 if __name__ == '__main__':
+    num_of_images = 12
     dim = 150
-    images = image_to_grey(show_bool=True)
-    meta_data = [["Sam", 'no-mask', 'happy'], ["Becca", 'no-mask', 'happy']]
 
-    data_frame = face_maker.create_dataframe(dim)
-    full_df = face_maker.fill_dataframe(data_frame, images, meta_data)
+    images = image_to_grey(show_bool=True, num_of_images=num_of_images)
+    """
+    meta_data_MASK_NOMASK = [["Sam", 'no-mask', 'happy'], ["Becca", 'no-mask', 'happy'], ["Jared", 'no-mask', 'happy'],
+                 ["Sam", 'mask', 'happy'], ["Becca", 'mask', 'happy'], ["Jared", 'mask', 'happy']]
+
+    meta_data_HAPPY_SAD = [["1", 'no-mask', 'happy'], ["2", 'no-mask', 'happy'], ["3", 'no-mask', 'happy'],
+                 ["A", 'no-mask', 'sad'], ["B", 'no-mask', 'sad'], ["C", 'no-mask', 'sad']]
+    """
+
+    meta_data = []
+    for i in range(6):
+        person = [str(i + 1), 'no-mask', 'happy']
+        meta_data.append(person)
+    for i in range(6, 12):
+        person = [str(i + 1), 'no-mask', 'sad']
+        meta_data.append(person)
+
+    masked_incl_bool = False  # don't include Masked column
+
+    data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
+    full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool)
     print("in main full_df\n", full_df)
 
     #print("Checking...")
