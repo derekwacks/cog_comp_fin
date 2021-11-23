@@ -876,7 +876,7 @@ func (ss *Sim) OpenPats() {
 	dt.SetMetaData("desc", "Training patterns")
 	// FILENAME HERE pineapple
 	//err := dt.OpenCSV("empty.dat", etable.Tab)
-	err := dt.OpenCSV("../new_faces.tsv", etable.Tab)
+	err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
 	if err != nil {
 		log.Println(err)
 	}
@@ -1168,7 +1168,7 @@ func (ss *Sim) LogTstTrl(dt *etable.Table) {
 	// note: essential to use Go version of update when called from another goroutine
 	ss.TstTrlPlot.GoUpdate()
 }
-
+// pineapple Why does this plot not show up?
 func (ss *Sim) ConfigTstTrlPlot(plt *eplot.Plot2D, dt *etable.Table) *eplot.Plot2D {
 	plt.Params.Title = "Leabra Simple Recurrent Network 25 Test Trial Plot"
 	plt.Params.XAxisCol = "Trial"
@@ -1512,6 +1512,10 @@ func (ss *Sim) ConfigGui() *gi.Window {
 	plt2 := tv.AddNewTab(eplot.KiT_Plot2D, "RunPlot").(*eplot.Plot2D)
 	ss.RunPlot = ss.ConfigRunPlot(plt2, ss.RunLog)
 
+	// pineapple Adding plots here
+// 	plt3 := tv.AddNewTab(eplot.KiT_Plot2D, "TstEpcPlot").(*eplot.Plot2D)
+//	ss.TstEpcPlot = ss.ConfigTstEpcPlot(plt, ss.TstEpcPlot)
+
 	split.SetSplits(.3, .7)
 
 	tbar.AddAction(gi.ActOpts{Label: "Init", Icon: "update", Tooltip: "Initialize everything including network weights, and start over.  Also applies current params.", UpdateFunc: func(act *gi.Action) {
@@ -1635,7 +1639,16 @@ func (ss *Sim) ConfigGui() *gi.Window {
 
 	//***************************
 	// Insert code for a RepAnalysis using an 'AddAction'  here:
-
+    // pineapple adding RepAnalysis here
+    tbar.AddAction(gi.ActOpts{Label: "Reps Analysis", Icon: "fast-fwd", Tooltip: "Does an All Test All and analyzes the resulting Hidden and AgentCode activations.", UpdateFunc: func(act *gi.Action) {
+        act.SetActiveStateUpdt(!ss.IsRunning)
+    }}, win.This(), func(recv, send ki.Ki, sig int64, data interface{}) {
+        if !ss.IsRunning {
+            ss.IsRunning = true
+            tbar.UpdateActions()
+            go ss.RepsAnalysis()
+        }
+    })
 	//***************************
 
 	vp.UpdateEndNoSig(updt)

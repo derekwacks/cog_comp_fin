@@ -45,12 +45,13 @@ def create_dataframe(dim, mask_incl_bool):
 
 
 
-def fill_dataframe(data_frame, images, meta_data, mask_incl_bool):
+def fill_dataframe(data_frame, images, meta_data, mask_incl_bool, face_file_name):
     """
     :param data_frame: pandas data frame to fill with images (to eventually write to tsv)
     :param images: 2D numpy array filled with 0's and 255's
     :param meta_data: 2D array filled with names and info accompanying each image in 2D array
     :param mask_incl_bool: bool to include masked column for data
+    :param face_file_name: tsv file name to write faces to
     :return: filled data_frame
     """
     print_check=False
@@ -89,8 +90,7 @@ def fill_dataframe(data_frame, images, meta_data, mask_incl_bool):
 
     #write_tsv(data_frame)
     # calling here instead
-
-    df_local_copy.to_csv('new_faces.tsv', index=False, sep='\t')
+    df_local_copy.to_csv(face_file_name, index=False, sep='\t')
 
     return df_local_copy
 

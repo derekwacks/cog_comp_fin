@@ -14,8 +14,12 @@ def drawing_face():
 """
 
 
-def image_to_grey(show_bool, num_of_images):
+def image_to_grey(show_bool, num_of_images, face_type):
     """
+    :param show_bool show images one at a time, as processed
+    :param num_of_images number of images in folder
+    :param face_type string, "masked" or "no_mask"
+
     https://techtutorialsx.com/2019/04/13/python-opencv-converting-image-to-black-and-white/
     :return: returning_images, list of all images as 2D numpy arrays
     """
@@ -25,7 +29,8 @@ def image_to_grey(show_bool, num_of_images):
     # Iterating over all images in folder
     for i in range(num_of_images):
         #file_name = 'images/face'+ str(i) +'.jpg'
-        name = "images/masked/face"+str(i+1)+".jpg"
+
+        name = "images/"+face_type+"/face"+str(i+1)+".jpg"
         print(name)
         originalImage = cv2.imread(name)
         # Resizing to 250 x 250
@@ -55,7 +60,10 @@ if __name__ == '__main__':
     num_of_images = 12
     dim = 150
 
-    images = image_to_grey(show_bool=True, num_of_images=num_of_images)
+    ################
+    #    masked    #
+    ################
+    images = image_to_grey(show_bool=False, num_of_images=num_of_images, face_type="masked")
     """
     meta_data_MASK_NOMASK = [["Sam", 'no-mask', 'happy'], ["Becca", 'no-mask', 'happy'], ["Jared", 'no-mask', 'happy'],
                  ["Sam", 'mask', 'happy'], ["Becca", 'mask', 'happy'], ["Jared", 'mask', 'happy']]
@@ -63,7 +71,6 @@ if __name__ == '__main__':
     meta_data_HAPPY_SAD = [["1", 'no-mask', 'happy'], ["2", 'no-mask', 'happy'], ["3", 'no-mask', 'happy'],
                  ["A", 'no-mask', 'sad'], ["B", 'no-mask', 'sad'], ["C", 'no-mask', 'sad']]
     """
-
     meta_data = []
     for i in range(6):
         person = [str(i + 1), 'no-mask', 'happy']
@@ -71,12 +78,24 @@ if __name__ == '__main__':
     for i in range(6, 12):
         person = [str(i + 1), 'no-mask', 'sad']
         meta_data.append(person)
-
     masked_incl_bool = False  # don't include Masked column
-
     data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
-    full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool)
-    print("in main full_df\n", full_df)
+    full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="masked_faces.tsv")
+
+    ################
+    #    No mask   #
+    ################
+    images = image_to_grey(show_bool=False, num_of_images=num_of_images, face_type="no_mask")
+    meta_data = []
+    for i in range(6):
+        person = [str(i + 1), 'no-mask', 'happy']
+        meta_data.append(person)
+    for i in range(6, 12):
+        person = [str(i + 1), 'no-mask', 'sad']
+        meta_data.append(person)
+    masked_incl_bool = False  # don't include Masked column
+    data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
+    full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="no_mask_faces.tsv")
 
     #print("Checking...")
     #face_maker.check_created_file()
