@@ -143,8 +143,8 @@ type Sim struct {
 	TestInterval int               `desc:"how often to run through all the test patterns, in terms of training epochs"`
 	LayStatNms   []string          `desc:"names of layers to collect more detailed stats on (avg act, etc)"`
 	HiddenReps   Reps              `view:"inline" desc:"representational analysis of Hidden layer"`
-	//FmHid        float32           `desc:"percentage of the context layer activity that will be taken directly from the hidden layer"`
-	//FmPrv        float32           `desc:"percentage of the context layer activity that will be kept"`
+	FmHid        float32           `desc:"percentage of the context layer activity that will be taken directly from the hidden layer"`
+	FmPrv        float32           `desc:"percentage of the context layer activity that will be kept"`
 
 	// statistics: note use float64 as that is best for etable.Table
 	TrlSSE     float64 `inactive:"+" desc:"current trial's sum squared error"`
@@ -209,8 +209,8 @@ func (ss *Sim) New() {
 	// to modify parameters. These will be reset when Init is
 	// called from within the GUI however!
 	// 
-	// ss.FmHid = 1
-   // ss.FmPrv = 0
+	ss.FmHid = 1
+    ss.FmPrv = 0
    // -----------------------------------
 	ss.Net = &leabra.Network{}
 	ss.Pats = &etable.Table{}
@@ -226,7 +226,7 @@ func (ss *Sim) New() {
 	ss.TrainUpdt = leabra.AlphaCycle
 	ss.TestUpdt = leabra.Cycle
 	ss.TestInterval = 5
-	ss.LayStatNms = []string{"Input", "Output", "Hidden"}
+	ss.LayStatNms = []string{"Input", "Output", "Hidden", "Hidden Context"}
    ss.HiddenReps.Init()
 }
 
@@ -302,7 +302,7 @@ func (ss *Sim) ConfigEnv() {
 	// pineapple uncommenting lines to split train/test
 	// // // // // // // // // //
 	all := etable.NewIdxView(ss.Pats)
-	splits, _ := split.Permuted(all, []float64{.8, .2}, []string{"Train", "Test"})
+	splits, _ := split.Permuted(all, []float64{.5, .5}, []string{"Train", "Test"}) // pineapple split test train .8, .2 coffee
 	ss.TrainEnv.Table = splits.Splits[0]
 	ss.TestEnv.Table = splits.Splits[1]
     // // // // // // // // // //
@@ -341,6 +341,7 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 
 	inp := net.AddLayer2D("Input", 150,150, emer.Input)
 	hid := net.AddLayer2D("Hidden", 10, 10, emer.Input)
+	con := net.AddLayer2D("Hidden Context", 10, 10, emer.Input)
 	out := net.AddLayer2D("Output", 1, 2, emer.Target)
 
 
@@ -380,6 +381,7 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	// the connections we've just described.
 	//
 	net.ConnectLayers(inp, hid, prjn.NewFull(), emer.Forward)
+	net.ConnectLayers(con, hid, prjn.NewFull(), emer.Forward) // for context layer
     net.BidirConnectLayers(hid, out, prjn.NewFull())
 	//net.ConnectLayers(inp, out, prjn.NewFull(), emer.Forward)
 	//
@@ -465,7 +467,15 @@ func (ss *Sim) AlphaCyc(train bool) {
 	// **********************************
 	// Insert context-layer code snippet from the README here:
 
-    // pineapple
+    // pineapple adding context layer here
+    context_in := ss.Net.LayerByName("Hidden").(*leabra.Layer)
+    context_out := ss.Net.LayerByName("Hidden Context").(*leabra.Layer)
+    context_in.UnitVals(&ss.TmpVals1, "Act")
+    context_out.UnitVals(&ss.TmpVals2, "Act")
+    for i,_ := range ss.TmpVals1 {
+       ss.TmpVals1[i] = ss.TmpVals1[i] * 1.0 + ss.TmpVals2[i] * 0.0
+    }
+    context_out.ApplyExt1D32(ss.TmpVals1)
 
 	// **********************************
 
@@ -719,7 +729,7 @@ func (ss *Sim) SaveWeights(filename gi.FileName) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Testing
-//
+// pineapple testing
 // This stuff is associated with the test trials we give the model.
 
 // TestTrial runs one trial of testing -- always sequentially presented inputs
@@ -1513,8 +1523,8 @@ func (ss *Sim) ConfigGui() *gi.Window {
 	ss.RunPlot = ss.ConfigRunPlot(plt2, ss.RunLog)
 
 	// pineapple Adding plots here
-// 	plt3 := tv.AddNewTab(eplot.KiT_Plot2D, "TstEpcPlot").(*eplot.Plot2D)
-//	ss.TstEpcPlot = ss.ConfigTstEpcPlot(plt, ss.TstEpcPlot)
+    // 	plt3 := tv.AddNewTab(eplot.KiT_Plot2D, "TstEpcPlot").(*eplot.Plot2D)
+    //	ss.TstEpcPlot = ss.ConfigTstEpcPlot(plt, ss.TstEpcPlot)
 
 	split.SetSplits(.3, .7)
 
