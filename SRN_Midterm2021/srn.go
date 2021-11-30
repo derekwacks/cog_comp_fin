@@ -28,7 +28,10 @@ import (
 	"github.com/emer/etable/etensor"
 	_ "github.com/emer/etable/etview" // include to get gui views
 	"github.com/emer/etable/split"
-	"github.com/emer/leabra/leabra"
+	"github.com/emer/leabra/leabra" // coffee importing local lebra stead of github version
+	//"/../../leabra_folder/leabra/leabra"
+	//"/Documents/Brown/Fall_2021/cog_neuro/leabra_folder/leabra/leabra"
+	//"Brown/Fall_2021/cog_neuro/leabra_folder/leabra/leabra"
 	"github.com/goki/gi/gi"
 	"github.com/goki/gi/gimain"
 	"github.com/goki/gi/giv"
@@ -39,6 +42,13 @@ import (
 
 // this is the stub main for gogi that calls our actual mainrun function, at end of file
 func main() {
+    // getting current working directory
+    mydir, err := os.Getwd()
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println(mydir)
+
 	gimain.Main(func() {
 		mainrun()
 	})
@@ -109,6 +119,29 @@ var ParamSets = params.Sets{
 				}},
 		},
 	}},
+	// Coffee, added error hebbian MLrn=1, LLrn=0 for prjn
+	{Name: "ErrorHebbIn", Desc: "Error-driven-out Hebb In learning params", Sheets: params.Sheets{
+		"Network": &params.Sheet{
+			{Sel: "Prjn", Desc: "",
+				Params: params.Params{
+					"Prjn.Learn.XCal.MLrn":    "1",
+					"Prjn.Learn.XCal.SetLLrn": "true",
+					"Prjn.Learn.XCal.LLrn":    "0",
+				}},
+			{Sel: ".InputToHidden", Desc: "in hidden self org",
+				Params: params.Params{
+					"Prjn.Learn.XCal.MLrn":    "0",
+					"Prjn.Learn.XCal.SetLLrn": "true",
+					"Prjn.Learn.XCal.LLrn":    "1",
+					"Prjn.Learn.Lrate":        "0.02",
+					"Prjn.Learn.WtBal.On":     "true", // note: was on!
+				}},
+			{Sel: ".Output", Desc: "out inhib",
+				Params: params.Params{
+					"Layer.Inhib.Layer.Gi": "1.8",
+				}},
+		},
+	}},
 }
 
 // Sim encapsulates the entire simulation model, and we define all the
@@ -119,6 +152,9 @@ var ParamSets = params.Sets{
 type Sim struct {
 	Net          *leabra.Network   `view:"no-inline" desc:"the network -- click to view / edit parameters for layers, prjns, etc"`
 	Pats         *etable.Table     `view:"no-inline" desc:"the training patterns to use"`
+	// COFFEE adding TESTPats test table
+	TESTPats         *etable.Table     `view:"no-inline" desc:"the training patterns to use"`
+
 	TrnEpcLog    *etable.Table     `view:"no-inline" desc:"training epoch-level log data"`
 	TstEpcLog    *etable.Table     `view:"no-inline" desc:"testing epoch-level log data"`
 	TstTrlLog    *etable.Table     `view:"no-inline" desc:"testing trial-level log data"`
@@ -184,7 +220,7 @@ type Sim struct {
 	NeedsNewRun   bool             `view:"-" desc:"flag to initialize NewRun if last one finished"`
 	RndSeed       int64            `view:"-" desc:"the current random seed"`
 	TmpVals1      []float32        `view:"-" desc:"temp slice for holding values -- prevent mem allocs"`
-   TmpVals2      []float32        `view:"-" desc:"temp slice for holding values -- prevent mem allocs"`
+    TmpVals2      []float32        `view:"-" desc:"temp slice for holding values -- prevent mem allocs"`
 
 }
 
@@ -214,6 +250,8 @@ func (ss *Sim) New() {
    // -----------------------------------
 	ss.Net = &leabra.Network{}
 	ss.Pats = &etable.Table{}
+	ss.TESTPats = &etable.Table{} // coffee
+
 	ss.TrnEpcLog = &etable.Table{}
 	ss.TstEpcLog = &etable.Table{}
 	ss.TstTrlLog = &etable.Table{}
@@ -294,17 +332,20 @@ func (ss *Sim) ConfigEnv() {
 
 	ss.TestEnv.Nm = "TestEnv"
 	ss.TestEnv.Dsc = "testing params and state"
-	ss.TestEnv.Table = etable.NewIdxView(ss.Pats)
+	//ss.TestEnv.Table = etable.NewIdxView(ss.Pats) // COFFEE
+	ss.TestEnv.Table = etable.NewIdxView(ss.TESTPats) // COFFEE
 	ss.TestEnv.Sequential = true
 	ss.TestEnv.Validate()
 
 	// note: to create a train / test split of pats, do this:
-	// pineapple uncommenting lines to split train/test
+	// pineapple uncommenting lines to split train/test coffee
 	// // // // // // // // // //
+	/*
 	all := etable.NewIdxView(ss.Pats)
 	splits, _ := split.Permuted(all, []float64{.5, .5}, []string{"Train", "Test"}) // pineapple split test train .8, .2 coffee
 	ss.TrainEnv.Table = splits.Splits[0]
 	ss.TestEnv.Table = splits.Splits[1]
+    */
     // // // // // // // // // //
 
     // pineapple
@@ -318,7 +359,7 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	// ****************************************************************************
 	// Section 1a: Setting up a three layer network:
 	//
-	// Here you will need to 'write' some code to genenerate layers in the network,
+	// Here you will need to 'write' some code to generate layers in the network,
 	// then connect them. The basic instruction for adding a layer is:
 	//
 	// 	layer := net.AddLayer2D(name, num_rows, num_columns, type)
@@ -879,13 +920,25 @@ func (ss *Sim) OpenPats() {
 	dt.SetMetaData("name", "TrainPats")
 	dt.SetMetaData("desc", "Training patterns")
 	// FILENAME HERE pineapple
-	//err := dt.OpenCSV("empty.dat", etable.Tab)
-
 	//err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
-	err := dt.OpenCSV("../no_mask_faces.tsv", etable.Tab)
+	err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
 	if err != nil {
 		log.Println(err)
 	}
+
+	/********** COFFEE **********/
+	TESTdt := ss.TESTPats
+	TESTdt.SetMetaData("name", "TestingPats")
+	TESTdt.SetMetaData("desc", "Testing patterns")
+	// FILENAME HERE pineapple
+	//err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
+	TESTerr := TESTdt.OpenCSV("../no_mask_faces.tsv", etable.Tab)
+	if TESTerr != nil {
+		log.Println(TESTerr)
+	}
+
+
+
 }
 //
 // This is the end of section 1b. Please continue to section 1c.

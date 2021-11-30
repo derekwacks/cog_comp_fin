@@ -42,14 +42,35 @@ def image_to_grey(show_bool, num_of_images, face_type):
 
         if show_bool:
             #cv2.imshow('Grey image', greyImage)
+            cv2.imshow('greyscale image', greyImage)
             cv2.imshow('Black white image', blackAndWhiteImage1)
             cv2.waitKey(0)  # closes windows when user presses key
             cv2.destroyAllWindows()
-
+            
         # Convert all 255 values to 1's (so 2D array is binary)
         blackAndWhiteImage1[blackAndWhiteImage1 > 0] = 1
+        
         # Flip 0's and 1's
         blackAndWhiteImage1 = np.where((blackAndWhiteImage1 == 0) | (blackAndWhiteImage1 == 1), blackAndWhiteImage1 ^ 1, blackAndWhiteImage1)
+
+        """
+        # Convert all 255 values to 1's (so 2D array is binary)
+        #blackAndWhiteImage1[blackAndWhiteImage1 > 0] = 1
+        # Flip 0's and 1's
+        blackAndWhiteImage1 = np.where((blackAndWhiteImage1 == 0) | (blackAndWhiteImage1 == 255), blackAndWhiteImage1 ^ 255,
+                                       blackAndWhiteImage1)
+        if show_bool:
+            # cv2.imshow('Grey image', greyImage)
+            cv2.imshow('greyscale image', greyImage)
+            cv2.imshow('Black white image', blackAndWhiteImage1)
+            cv2.waitKey(0)  # closes windows when user presses key
+            cv2.destroyAllWindows()
+        """
+
+
+
+
+
 
         # Add new image to list
         returning_images.append(blackAndWhiteImage1)
@@ -79,8 +100,10 @@ if __name__ == '__main__':
         person = [str(i + 1), 'no-mask', 'sad']
         meta_data.append(person)
     masked_incl_bool = False  # don't include Masked column
+    """
     data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
     full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="masked_faces.tsv")
+    """
 
     ################
     #    No mask   #
@@ -94,9 +117,10 @@ if __name__ == '__main__':
         person = [str(i + 1), 'no-mask', 'sad']
         meta_data.append(person)
     masked_incl_bool = False  # don't include Masked column
+    """
     data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
     full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="no_mask_faces.tsv")
-
+    """
     #print("Checking...")
     #face_maker.check_created_file()
 

@@ -1,0 +1,6 @@
+|Run	$Params	#FirstZero	#SSE	#AvgSSE	#PctErr	#PctCor	#CosDiff
+0	Base	9	0	0	0	1	1
+1	Base	4	0	0	0	1	1
+2	Base	5	0	0	0	1	1
+3	Base	5	0	0	0	1	1
+4	Base	6	0	0	0	1	1
