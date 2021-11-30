@@ -473,7 +473,8 @@ func (ss *Sim) AlphaCyc(train bool) {
     context_in.UnitVals(&ss.TmpVals1, "Act")
     context_out.UnitVals(&ss.TmpVals2, "Act")
     for i,_ := range ss.TmpVals1 {
-       ss.TmpVals1[i] = ss.TmpVals1[i] * 1.0 + ss.TmpVals2[i] * 0.0
+       //ss.TmpVals1[i] = ss.TmpVals1[i] * 1.0 + ss.TmpVals2[i] * 0.0
+       ss.TmpVals1[i] = ss.TmpVals1[i] * ss.FmHid + ss.TmpVals2[i] * ss.FmPrv
     }
     context_out.ApplyExt1D32(ss.TmpVals1)
 
@@ -489,7 +490,7 @@ func (ss *Sim) AlphaCyc(train bool) {
 	// in which case, move it out to the TrainTrial method where the relevant
 	// counters are being dealt with.
 	if train {
-		ss.Net.WtFmDWt()
+		ss.Net.WtFmDWt() //WtFmDWt updates the synaptic weights from accumulated weight changes
 	}
 
 	ss.Net.AlphaCycInit()
@@ -525,7 +526,7 @@ func (ss *Sim) AlphaCyc(train bool) {
 			}
 		}
 	}
-
+    // coffee, DWt is the XCAL function for weight change -- the "check mark" function -- no DGain, no ThrPMin
 	if train {
 		ss.Net.DWt()
 	}
@@ -590,9 +591,6 @@ func (ss *Sim) TrainTrial() {
 
 	ss.ApplyInputs(&ss.TrainEnv)
 	ss.AlphaCyc(true)   // train
-
-
-
 	ss.TrialStats(true) // accumulate
 }
 
@@ -747,10 +745,8 @@ func (ss *Sim) TestTrial(returnOnChg bool) {
 			return
 		}
 	}
-
 	ss.ApplyInputs(&ss.TestEnv)
 	ss.AlphaCyc(false)   // !train
-
 	ss.TrialStats(false) // !accumulate
 	ss.LogTstTrl(ss.TstTrlLog)
 }
@@ -760,10 +756,8 @@ func (ss *Sim) TestItem(idx int) {
 	cur := ss.TestEnv.Trial.Cur
 	ss.TestEnv.Trial.Cur = idx
 	ss.TestEnv.SetTrialName()
-
 	ss.ApplyInputs(&ss.TestEnv)
 	ss.AlphaCyc(false)   // !train
-
 	ss.TrialStats(false) // !accumulate
 	ss.TestEnv.Trial.Cur = cur
 }
@@ -886,7 +880,9 @@ func (ss *Sim) OpenPats() {
 	dt.SetMetaData("desc", "Training patterns")
 	// FILENAME HERE pineapple
 	//err := dt.OpenCSV("empty.dat", etable.Tab)
-	err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
+
+	//err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
+	err := dt.OpenCSV("../no_mask_faces.tsv", etable.Tab)
 	if err != nil {
 		log.Println(err)
 	}
@@ -1178,7 +1174,7 @@ func (ss *Sim) LogTstTrl(dt *etable.Table) {
 	// note: essential to use Go version of update when called from another goroutine
 	ss.TstTrlPlot.GoUpdate()
 }
-// pineapple Why does this plot not show up?
+
 func (ss *Sim) ConfigTstTrlPlot(plt *eplot.Plot2D, dt *etable.Table) *eplot.Plot2D {
 	plt.Params.Title = "Leabra Simple Recurrent Network 25 Test Trial Plot"
 	plt.Params.XAxisCol = "Trial"
@@ -1451,6 +1447,76 @@ func (ss *Sim) ConfigRunPlot(plt *eplot.Plot2D, dt *etable.Table) *eplot.Plot2D 
 	return plt
 }
 
+
+/*********************** COFFEE PINEAPPLE**************************************/
+// LogRun adds data from current run to the RunLog table.
+
+/******
+func (ss *Sim) TSTLogRun(dt *etable.Table) {
+	run := ss.TestEnv.Run.Cur // this is NOT triggered by increment yet -- use Cur
+	row := dt.Rows
+	dt.SetNumRows(row + 1)
+
+	epclog := ss.TstEpcLog
+	epcix := etable.NewIdxView(epclog)
+	// compute mean over last N epochs for run level
+	nlast := 10
+	if nlast > epcix.Len()-1 {
+		nlast = epcix.Len() - 1
+	}
+	epcix.Idxs = epcix.Idxs[epcix.Len()-nlast-1:]
+
+	params := ss.RunName() // includes tag
+	dt.SetCellFloat("Run", row, float64(run))
+	dt.SetCellString("Params", row, params)
+	dt.SetCellFloat("FirstZero", row, float64(ss.FirstZero))
+	dt.SetCellFloat("SSE", row, agg.Mean(epcix, "SSE")[0])
+	dt.SetCellFloat("AvgSSE", row, agg.Mean(epcix, "AvgSSE")[0])
+	dt.SetCellFloat("PctErr", row, agg.Mean(epcix, "PctErr")[0])
+	dt.SetCellFloat("PctCor", row, agg.Mean(epcix, "PctCor")[0])
+	dt.SetCellFloat("CosDiff", row, agg.Mean(epcix, "CosDiff")[0])
+	runix := etable.NewIdxView(dt)
+	spl := split.GroupBy(runix, []string{"Params"})
+	split.Desc(spl, "FirstZero")
+	split.Desc(spl, "PctCor")
+	ss.RunStats = spl.AggsToTable(false)
+
+	// note: essential to use Go version of update when called from another goroutine
+	ss.RunPlot.GoUpdate()
+	if ss.RunFile != nil {
+		if row == 0 {
+			dt.WriteCSVHeaders(ss.RunFile, etable.Tab)
+		}
+		dt.WriteCSVRow(ss.RunFile, row, etable.Tab)
+	}
+}
+
+func (ss *Sim) TSTConfigRunLog(dt *etable.Table) {
+	dt.SetMetaData("name", "RunLog")
+	dt.SetMetaData("desc", "Record of performance at end of training")
+	dt.SetMetaData("read-only", "true")
+	dt.SetMetaData("precision", strconv.Itoa(LogPrec))
+
+	dt.SetFromSchema(etable.Schema{
+		{"Run", etensor.INT64, nil, nil},
+		{"Params", etensor.STRING, nil, nil},
+		{"FirstZero", etensor.FLOAT64, nil, nil},
+		{"SSE", etensor.FLOAT64, nil, nil},
+		{"AvgSSE", etensor.FLOAT64, nil, nil},
+		{"PctErr", etensor.FLOAT64, nil, nil},
+		{"PctCor", etensor.FLOAT64, nil, nil},
+		{"CosDiff", etensor.FLOAT64, nil, nil},
+	}, 0)
+}
+******/
+
+/*********************** ^^^^^^^^^^^^^^^^^^ **************************************/
+
+
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // 		Gui
 //
@@ -1523,8 +1589,8 @@ func (ss *Sim) ConfigGui() *gi.Window {
 	ss.RunPlot = ss.ConfigRunPlot(plt2, ss.RunLog)
 
 	// pineapple Adding plots here
-    // 	plt3 := tv.AddNewTab(eplot.KiT_Plot2D, "TstEpcPlot").(*eplot.Plot2D)
-    //	ss.TstEpcPlot = ss.ConfigTstEpcPlot(plt, ss.TstEpcPlot)
+    plt3 := tv.AddNewTab(eplot.KiT_Plot2D, "TstEpcPlot").(*eplot.Plot2D)
+    ss.TstEpcPlot = ss.ConfigTstEpcPlot(plt3, ss.TstEpcLog)
 
 	split.SetSplits(.3, .7)
 
