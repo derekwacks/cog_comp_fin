@@ -316,11 +316,11 @@ func (ss *Sim) Config() {
 func (ss *Sim) ConfigEnv() {
 
 	if ss.MaxRuns == 0 { // allow user override
-		ss.MaxRuns = 1
+		ss.MaxRuns = 3
 	}
 	if ss.MaxEpcs == 0 { // allow user override
 		ss.MaxEpcs = 50
-		ss.NZeroStop = 30	  // num. of times the network should perform perfectly before we say task is learned
+		ss.NZeroStop = 15	  // num. of times the network should perform perfectly before we say task is learned
 	}
 
 	ss.TrainEnv.Nm = "TrainEnv"
@@ -330,22 +330,23 @@ func (ss *Sim) ConfigEnv() {
 	ss.TrainEnv.Validate()
 	ss.TrainEnv.Run.Max = ss.MaxRuns // note: we are not setting epoch max -- do that manually
 
+
+    // COFFEE, three steps below to switch between separate train/test tables and individual split
 	ss.TestEnv.Nm = "TestEnv"
 	ss.TestEnv.Dsc = "testing params and state"
-	//ss.TestEnv.Table = etable.NewIdxView(ss.Pats) // COFFEE
-	ss.TestEnv.Table = etable.NewIdxView(ss.TESTPats) // COFFEE
+	ss.TestEnv.Table = etable.NewIdxView(ss.Pats) // 1. comment this line...
+	//ss.TestEnv.Table = etable.NewIdxView(ss.TESTPats) // 2. and uncomment this line when using the separate testing tsv
 	ss.TestEnv.Sequential = true
 	ss.TestEnv.Validate()
 
 	// note: to create a train / test split of pats, do this:
 	// pineapple uncommenting lines to split train/test coffee
 	// // // // // // // // // //
-	/*
+	// 3. comment out these lines if using a separate testing tsv
 	all := etable.NewIdxView(ss.Pats)
 	splits, _ := split.Permuted(all, []float64{.5, .5}, []string{"Train", "Test"}) // pineapple split test train .8, .2 coffee
 	ss.TrainEnv.Table = splits.Splits[0]
 	ss.TestEnv.Table = splits.Splits[1]
-    */
     // // // // // // // // // //
 
     // pineapple

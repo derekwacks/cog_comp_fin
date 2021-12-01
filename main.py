@@ -100,10 +100,10 @@ if __name__ == '__main__':
         person = [str(i + 1), 'no-mask', 'sad']
         meta_data.append(person)
     masked_incl_bool = False  # don't include Masked column
-    """
+
     data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
     full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="masked_faces.tsv")
-    """
+
 
     ################
     #    No mask   #
@@ -117,10 +117,10 @@ if __name__ == '__main__':
         person = [str(i + 1), 'no-mask', 'sad']
         meta_data.append(person)
     masked_incl_bool = False  # don't include Masked column
-    """
+
     data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
     full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="no_mask_faces.tsv")
-    """
+
     #print("Checking...")
     #face_maker.check_created_file()
 

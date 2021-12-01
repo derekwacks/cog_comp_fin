@@ -32,8 +32,8 @@ def create_dataframe(dim, mask_incl_bool):
         new_data = {'_H:': [], '$Name': [], '%Masked[2:0,0]<2:1,2>': [], '%Masked[2:0,1]': [], '%Emotion[2:0,0]<2:1,2>': [], '%Emotion[2:0,1]': []}
     else:  # using just Output column as emotion column (and no Masked)
         new_data = {'_H:': [], '$Name': [], '%Output[2:0,0]<2:1,2>': [], '%Output[2:0,1]': []}
-    for row in range(len(image)):  # 250 pixels
-        for column in range(len(image[0])):  # 250 pixels
+    for row in range(len(image)):  # 150 pixels
+        for column in range(len(image[0])):  #150 pixels
             if row==0 and column==0:
                 dims = str(dim)+","+str(dim)
                 new_entry = "%Input[2:0,0]<2:"+dims+">"  # to match format in faces tsv
@@ -61,6 +61,8 @@ def fill_dataframe(data_frame, images, meta_data, mask_incl_bool, face_file_name
     for img in images:
         x = img.flatten()                   # flatten 2D numpy array
         y = list(map(str, x))               # convert to list of type str
+        y.reverse()                         # corrects the orientation, so in the emergent network
+                                            # the image is right-side-up
 
         if meta_data[counter][2] == "happy":
             y.insert(0, str(0))  # emotion indicator 0

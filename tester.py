@@ -1,12 +1,12 @@
 import numpy as np
 import json
 
-meta_data = []
-for i in range(6):
-    person = [str(i + 1), 'no-mask', 'happy']
-    meta_data.append(person)
-for i in range(6, 12):
-    person = [str(i + 1), 'no-mask', 'sad']
-    meta_data.append(person)
+data = np.array([[1,2,3],[4,5,6],[7,8,9]])
+print(data)
+y = data.flatten()
+print(y)
 
-print(meta_data)
+x = list(map(str, y))
+x.reverse()
+print(x)
+
