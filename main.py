@@ -37,13 +37,13 @@ def image_to_grey(show_bool, num_of_images, face_type):
         dim = (150,150)
         originalImage = cv2.resize(originalImage, dim)#, interpolation=cv2.INTER_AREA) # experiment with different interpolation methods
         greyImage = cv2.cvtColor(originalImage, cv2.COLOR_BGR2GRAY)
-        # Note: try different thresholds here
-        (thresh, blackAndWhiteImage1) = cv2.threshold(greyImage, 127, 255, cv2.THRESH_BINARY)
+        # Note: 125 threshold worked best (tried values between 100-200) such that
+        # activity was primarily based on facial features (and not excessively on shadows)
+        (thresh, blackAndWhiteImage1) = cv2.threshold(greyImage, 125, 255, cv2.THRESH_BINARY)
 
         if show_bool:
-            #cv2.imshow('Grey image', greyImage)
             cv2.imshow('greyscale image', greyImage)
-            cv2.imshow('Black white image', blackAndWhiteImage1)
+            cv2.imshow('Black white image 135', blackAndWhiteImage1)
             cv2.waitKey(0)  # closes windows when user presses key
             cv2.destroyAllWindows()
             
@@ -67,23 +67,11 @@ def image_to_grey(show_bool, num_of_images, face_type):
             cv2.destroyAllWindows()
         """
 
-
-
-
-
-
         # Add new image to list
         returning_images.append(blackAndWhiteImage1)
     return returning_images
 
-
-if __name__ == '__main__':
-    num_of_images = 12
-    dim = 150
-
-    ################
-    #    masked    #
-    ################
+def create_masked():
     images = image_to_grey(show_bool=False, num_of_images=num_of_images, face_type="masked")
     """
     meta_data_MASK_NOMASK = [["Sam", 'no-mask', 'happy'], ["Becca", 'no-mask', 'happy'], ["Jared", 'no-mask', 'happy'],
@@ -103,11 +91,9 @@ if __name__ == '__main__':
 
     data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
     full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="masked_faces.tsv")
+    return
 
-
-    ################
-    #    No mask   #
-    ################
+def create_unmasked():
     images = image_to_grey(show_bool=False, num_of_images=num_of_images, face_type="no_mask")
     meta_data = []
     for i in range(6):
@@ -120,8 +106,20 @@ if __name__ == '__main__':
 
     data_frame = face_maker.create_dataframe(dim, masked_incl_bool)
     full_df = face_maker.fill_dataframe(data_frame, images, meta_data, masked_incl_bool, face_file_name="no_mask_faces.tsv")
+    return
 
-    #print("Checking...")
+if __name__ == '__main__':
+    num_of_images = 12
+    dim = 150
+    """
+    meta_data_MASK_NOMASK = [["Sam", 'no-mask', 'happy'], ["Becca", 'no-mask', 'happy'], ["Jared", 'no-mask', 'happy'],
+                 ["Sam", 'mask', 'happy'], ["Becca", 'mask', 'happy'], ["Jared", 'mask', 'happy']]
+
+    meta_data_HAPPY_SAD = [["1", 'no-mask', 'happy'], ["2", 'no-mask', 'happy'], ["3", 'no-mask', 'happy'],
+                 ["A", 'no-mask', 'sad'], ["B", 'no-mask', 'sad'], ["C", 'no-mask', 'sad']]
+    """
+    create_masked()
+    create_unmasked()
+
     #face_maker.check_created_file()
-
     print("Complete")

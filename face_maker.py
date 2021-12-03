@@ -90,7 +90,7 @@ def fill_dataframe(data_frame, images, meta_data, mask_incl_bool, face_file_name
         df_local_copy = df_local_copy.append(new_row)
         counter+=1
 
-    #write_tsv(data_frame)
+    #write_tsv(data_frame) # Writes to face tsv's
     # calling here instead
     df_local_copy.to_csv(face_file_name, index=False, sep='\t')
 
