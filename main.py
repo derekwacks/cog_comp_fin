@@ -72,7 +72,7 @@ def image_to_grey(show_bool, num_of_images, face_type):
     return returning_images
 
 def create_masked():
-    images = image_to_grey(show_bool=False, num_of_images=num_of_images, face_type="masked")
+    images = image_to_grey(show_bool=True, num_of_images=num_of_images, face_type="masked")
     """
     meta_data_MASK_NOMASK = [["Sam", 'no-mask', 'happy'], ["Becca", 'no-mask', 'happy'], ["Jared", 'no-mask', 'happy'],
                  ["Sam", 'mask', 'happy'], ["Becca", 'mask', 'happy'], ["Jared", 'mask', 'happy']]
@@ -94,7 +94,7 @@ def create_masked():
     return
 
 def create_unmasked():
-    images = image_to_grey(show_bool=False, num_of_images=num_of_images, face_type="no_mask")
+    images = image_to_grey(show_bool=True, num_of_images=num_of_images, face_type="no_mask")
     meta_data = []
     for i in range(6):
         person = [str(i + 1), 'no-mask', 'happy']
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     meta_data_HAPPY_SAD = [["1", 'no-mask', 'happy'], ["2", 'no-mask', 'happy'], ["3", 'no-mask', 'happy'],
                  ["A", 'no-mask', 'sad'], ["B", 'no-mask', 'sad'], ["C", 'no-mask', 'sad']]
     """
-    create_masked()
+    #create_masked()
     create_unmasked()
 
     #face_maker.check_created_file()
