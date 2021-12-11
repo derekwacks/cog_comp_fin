@@ -23,3 +23,9 @@ With a network modeled as a Simple Recurrent Network, I explored questions relat
 - face_maker.py: provides helper functions to create dataframes and CSV files to read into the emergent network's input layer
 
 - results_analysis.py: performs analysis on different result CSV's from the go code and writes analysis to a CSV
+
+
+
+Thank you to Professor Frank, Alana Jaskir & Jason Leng for their support
+
+And to all contributors to the [Emergent project](https://github.com/emer/emergent)
