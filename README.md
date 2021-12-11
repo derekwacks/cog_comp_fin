@@ -28,4 +28,4 @@ With a network modeled as a Simple Recurrent Network, I explored questions relat
 
 Thank you to Professor Frank, Alana Jaskir & Jason Leng for their support
 
-And to all contributors to the [Emergent project](https://github.com/emer/emergent)
+And to all contributors to the [Emergent project](https://github.com/emer/emergent), which this project heavily relied upon.
