@@ -16,6 +16,8 @@ With a network modeled as a Simple Recurrent Network, I explored questions relat
 
 #### Main files:
 
+- SRN_Code/srn.go: builds the network, and runs the simulation
+
 - main.py: orchestrates the whole show (undertaking image pre-processing, etc.)
 
 - face_maker.py: provides helper functions to create dataframes and CSV files to read into the emergent network's input layer
