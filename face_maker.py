@@ -63,14 +63,12 @@ def fill_dataframe(data_frame, images, meta_data, mask_incl_bool, face_file_name
         y = list(map(str, x))               # convert to list of type str
         y.reverse()                         # corrects the orientation, so in the emergent network
                                             # the image is right-side-up
-
         if meta_data[counter][2] == "happy":
             y.insert(0, str(0))  # emotion indicator 0
             y.insert(0, str(1))  # emotion indicator 1
         elif meta_data[counter][2] == "sad":
             y.insert(0, str(1))  # emotion indicator 1
             y.insert(0, str(0))  # emotion indicator 0
-
         #y.insert(0, meta_data[counter][1])  # Masked or non-masked binary indicator
         if mask_incl_bool:  # If we're using the Masked column in the .dat/.tsv file
             if meta_data[counter][1] == "mask":
@@ -89,9 +87,7 @@ def fill_dataframe(data_frame, images, meta_data, mask_incl_bool, face_file_name
         new_row = pd.DataFrame([y], columns=list(df_local_copy.columns))
         df_local_copy = df_local_copy.append(new_row)
         counter+=1
-
-    #write_tsv(data_frame) # Writes to face tsv's
-    # calling here instead
+    # Writing to tsv file
     df_local_copy.to_csv(face_file_name, index=False, sep='\t')
 
     return df_local_copy

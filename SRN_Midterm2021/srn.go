@@ -334,8 +334,8 @@ func (ss *Sim) ConfigEnv() {
     // COFFEE, three steps below to switch between separate train/test tables and individual split
 	ss.TestEnv.Nm = "TestEnv"
 	ss.TestEnv.Dsc = "testing params and state"
-	ss.TestEnv.Table = etable.NewIdxView(ss.Pats) // 1. comment this line...
-	//ss.TestEnv.Table = etable.NewIdxView(ss.TESTPats) // 2. and uncomment this line when using the separate testing tsv
+	//ss.TestEnv.Table = etable.NewIdxView(ss.Pats) // 1. comment this line...
+	ss.TestEnv.Table = etable.NewIdxView(ss.TESTPats) // 2. and uncomment this line when using the separate testing tsv
 	ss.TestEnv.Sequential = true
 	ss.TestEnv.Validate()
 
@@ -343,12 +343,12 @@ func (ss *Sim) ConfigEnv() {
 	// pineapple uncommenting lines to split train/test coffee
 	// // // // // // // // // //
 	// 3. comment out these lines if using a separate testing tsv
-
+    /*
 	all := etable.NewIdxView(ss.Pats)
 	splits, _ := split.Permuted(all, []float64{.8, .2}, []string{"Train", "Test"}) // pineapple split test train .8, .2 coffee
 	ss.TrainEnv.Table = splits.Splits[0]
 	ss.TestEnv.Table = splits.Splits[1]
-
+    */
     // // // // // // // // // //
 
     // pineapple
@@ -924,7 +924,7 @@ func (ss *Sim) OpenPats() {
 	dt.SetMetaData("desc", "Training patterns")
 	// FILENAME HERE pineapple
 	//err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
-	err := dt.OpenCSV("../no_mask_faces.tsv", etable.Tab)
+	err := dt.OpenCSV("../exp6_masked_faces.tsv", etable.Tab) // exp6_no_mask_faces.tsv
 	if err != nil {
 		log.Println(err)
 	}
@@ -935,7 +935,7 @@ func (ss *Sim) OpenPats() {
 	TESTdt.SetMetaData("desc", "Testing patterns")
 	// FILENAME HERE pineapple
 	//err := dt.OpenCSV("../masked_faces.tsv", etable.Tab)
-	TESTerr := TESTdt.OpenCSV("../masked_faces.tsv", etable.Tab) //no_mask_faces
+	TESTerr := TESTdt.OpenCSV("../exp6_no_mask_faces.tsv", etable.Tab) // exp6_masked_faces.tsv
 	if TESTerr != nil {
 		log.Println(TESTerr)
 	}
