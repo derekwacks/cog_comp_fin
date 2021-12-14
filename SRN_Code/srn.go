@@ -29,9 +29,6 @@ import (
 	_ "github.com/emer/etable/etview" // include to get gui views
 	"github.com/emer/etable/split"
 	"github.com/emer/leabra/leabra" // coffee importing local lebra stead of github version
-	//"/../../leabra_folder/leabra/leabra"
-	//"/Documents/Brown/Fall_2021/cog_neuro/leabra_folder/leabra/leabra"
-	//"Brown/Fall_2021/cog_neuro/leabra_folder/leabra/leabra"
 	"github.com/goki/gi/gi"
 	"github.com/goki/gi/gimain"
 	"github.com/goki/gi/giv"

@@ -1,0 +1,5 @@
+Training/Testing sets,Percent correct mean
+masked training-masked testing,0.41267
+masked training-unmasked testing,0.92983
+unmasked training-masked testing,0.94736
+unmasked training-unmasked testing,0.66667
